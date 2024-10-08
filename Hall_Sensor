@@ -1,0 +1,51 @@
+#include <LiquidCrystal.h>
+
+// Initialize the LCD
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+// Define the pin for the Hall effect sensor
+const int hallSensorPin = A0; // Analog pin for Hall effect sensor
+
+// Baseline value (adjust based on your sensor's behavior)
+const int baseline = 521;  // Adjust this value if the sensor gives a constant offset
+
+void setup() {
+  lcd.begin(16, 2);  // Initialize the LCD
+  Serial.begin(9600);
+
+  lcd.setCursor(0, 0);
+  lcd.print("Hall Sensor Test");
+  delay(2000);  // Show the message for 2 seconds
+  lcd.clear();
+}
+
+void loop() {
+  int sensorValue = analogRead(hallSensorPin);
+
+  // Subtract the baseline value (if necessary)
+  int adjustedValue = sensorValue - baseline;
+  
+  // Ensure the adjusted value doesn't go below 0
+  if (adjustedValue < 0) {
+    adjustedValue = 0;
+  }
+
+  // Map the adjusted value to a percentage (0 to 100%)
+  int magneticStrength = map(adjustedValue, 0, 1023 - baseline, 0, 100);
+
+  // Display on the LCD
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Magnetic Field:");
+  lcd.setCursor(0, 1);
+  lcd.print(magneticStrength);
+  lcd.print(" %");
+
+  // Print to the serial monitor for debugging
+  Serial.print("Sensor Value: ");
+  Serial.println(sensorValue);
+  Serial.print("Adjusted Value: ");
+  Serial.println(adjustedValue);
+
+  delay(500);
+}
